@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.models import Permission
 from .models import Category, Medication, Tag
 from .inlines import TagMedicationInline, MedicationInline
-
+from .actions import export_as_json, make_actived, export_as_csv
 
 class BaseAdmin(admin.ModelAdmin):
     empty_value_display = "-Unknown-"
@@ -41,3 +42,7 @@ class TagAdmin(BaseAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Medication, MedicationAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(Permission)
+admin.site.add_action(export_as_json, "export_as_json")
+admin.site.add_action(export_as_csv, "export_as_csv")
+admin.site.add_action(make_actived, "mark_actived")

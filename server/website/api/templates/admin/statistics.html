@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+	<div class="row">
+		<div
+			class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+			<h1 class="h4 m-0 pr-3 mr-3 border-right">
+				Statistics
+			</h1>
+
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">
+					<a
+						href="/admin/"
+						class="active"
+						>Home</a
+					>
+				</li>
+				<li class="breadcrumb-item">Statistics</li>
+			</ol>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-7">
+			<canvas id="mainChart"></canvas>
+		</div>
+		<div class="col-5">
+			<table></table>
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+
+<script>
+	window.onload = () => {
+		const salesCtx = document.getElementById('mainChart');
+		const salesChart = createChart(
+			salesCtx,
+			'bar',
+			'Statistical chart of the number of services by category',
+		);
+		loadChart(salesChart, '/chart/categories/');
+	};
+</script>
+{% endblock %}
