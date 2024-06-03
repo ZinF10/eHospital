@@ -34,3 +34,64 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ["id"]
+
+
+class BaseModel(models.Model):
+    is_active = models.BooleanField(default=True, verbose_name="Active",
+                                    help_text="Designates whether this object should be treated as active. Unselect this instead of deleting objects.")
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+        ordering = ["id"]
+
+
+class ItemModel(BaseModel):
+    slug = models.SlugField(default="", null=False, verbose_name="URL", help_text="A short label, generally used in URLs.")
+
+    class Meta(BaseModel.Meta):
+        abstract = True
+        ordering = BaseModel.Meta.ordering + ["slug"]
+
+
+class Category(ItemModel):
+    name = models.CharField(max_length=80, unique=True)
+
+    class Meta(ItemModel.Meta):
+        ordering = ItemModel.Meta.ordering
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(BaseModel):
+    name = models.CharField(max_length=80, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta(BaseModel.Meta):
+        ordering = BaseModel.Meta.ordering + ["name"]
+
+
+class CommonModel(models.Model):
+    tags = models.ManyToManyField(Tag)
+
+    class Meta:
+        abstract = True
+        ordering = ["id"]
+
+
+class Medication(ItemModel, CommonModel):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    price = models.FloatField(default=0.00)
+
+    class Meta(ItemModel.Meta):
+        ordering = ItemModel.Meta.ordering + ["price"]
+    
+    def __str__(self):
+        return self.name
