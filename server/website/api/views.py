@@ -1,8 +1,11 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework import viewsets, filters
+from rest_framework.settings import api_settings
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from drf_excel.mixins import XLSXFileMixin
 from django_filters.rest_framework import DjangoFilterBackend
-from . import serializers, dao, filters as customize_filters
+from . import serializers, dao, filters as customize_filters, renders
 
 
 @staff_member_required
@@ -23,17 +26,32 @@ def get_stats_categories(request):
     })
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    This API returns a list of all **active** categories in the system.
+
+    For more details on how categories are activated, please [see here](http://example.com/activating-accounts).
+    """
+
     queryset = dao.load_categories()
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
+    filename = 'categories.xlsx'
 
 
-class MedicationViewSet(viewsets.ReadOnlyModelViewSet):
+class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    This API returns a list of all **active** medications in the system.
+
+    For more details on how medications are activated, please [see here](http://example.com/activating-accounts).
+    """
+
     queryset = dao.load_medications()
     serializer_class = serializers.MedicationSerializer
     lookup_field = 'slug'
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend,
+                       filters.SearchFilter, filters.OrderingFilter]
     filterset_class = customize_filters.MedicationFilter
     ordering_fields = ['price', 'name']
     search_fields = ['name']
+    filename = 'medications.xlsx'

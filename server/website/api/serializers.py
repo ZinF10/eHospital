@@ -15,4 +15,4 @@ class MedicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Medication
-        fields = ['slug', 'name', 'is_active', 'price', 'description', 'category']
+        fields = ['slug', 'name', 'price', 'description', 'category']

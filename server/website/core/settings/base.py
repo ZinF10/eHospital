@@ -23,9 +23,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_redesign',
     'rest_framework',
     'django_filters',
     'mdeditor',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
     'api.apps.ApiConfig'
 ]
 
@@ -33,12 +36,20 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
+        'drf_excel.renderers.XLSXRenderer'
+    ),
 }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -89,6 +100,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+LANGUAGES = [
+    ('en', 'English')
+]
 
 TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
@@ -141,4 +156,32 @@ MDEDITOR_CONFIGS = {
         'lineNumbers': True,  # lineNumbers
         'language': 'en'  # zh / en / es
     }
+}
+
+# Swagger
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'eHospital Swagger',
+    'DESCRIPTION': 'RESTful APIs for eHospital application 🚀',
+    'VERSION': '1.0.0',
+    'TERMS_OF_SERVICE': 'https://www.google.com/policies/terms/',
+    'CONTACT': {
+        'name': 'ZIN',
+        'url': 'https://github.com/zinitdev',
+        'email': 'zin.it.dev@gmail.com',
+    },
+    'LICENSE': {
+        'name': 'Apache 2.0',
+        'url': 'https://www.apache.org/licenses/LICENSE-2.0.html',
+    },
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',
 }
