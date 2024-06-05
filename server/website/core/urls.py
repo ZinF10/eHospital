@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from .settings import base
 from .admin import admin_statistics_view
@@ -9,6 +9,7 @@ urlpatterns = [
          name="admin-statistics"),
     path('admin/', admin.site.urls),
     path('', include('api.urls')),
+    re_path(r'mdeditor/', include('mdeditor.urls'))
 ]
 
 

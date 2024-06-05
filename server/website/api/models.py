@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.contrib import admin
 from django.utils.html import mark_safe
+from mdeditor.fields import MDTextField
 
 
 class User(AbstractUser):
@@ -48,7 +49,8 @@ class BaseModel(models.Model):
 
 
 class ItemModel(BaseModel):
-    slug = models.SlugField(default="", null=False, verbose_name="URL", help_text="A short label, generally used in URLs.")
+    slug = models.SlugField(default="", null=False, verbose_name="URL",
+                            help_text="A short label, generally used in URLs.")
 
     class Meta(BaseModel.Meta):
         abstract = True
@@ -57,6 +59,7 @@ class ItemModel(BaseModel):
 
 class Category(ItemModel):
     name = models.CharField(max_length=80, unique=True)
+    description = MDTextField(null=True, blank=True)
 
     class Meta(ItemModel.Meta):
         ordering = ItemModel.Meta.ordering
@@ -87,11 +90,11 @@ class CommonModel(models.Model):
 class Medication(ItemModel, CommonModel):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, unique=True)
-    description = models.TextField()
+    description = MDTextField(null=True, blank=True)
     price = models.FloatField(default=0.00)
 
     class Meta(ItemModel.Meta):
         ordering = ItemModel.Meta.ordering + ["price"]
-    
+
     def __str__(self):
         return self.name
