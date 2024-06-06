@@ -87,18 +87,51 @@ class PatientViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class UserViewSet(viewsets.ViewSet):
+class UserViewSet(viewsets.GenericViewSet):
     queryset = dao.load_users()
     serializer_class = serializers.UserSerializer
     lookup_field = "username"
-    permission_classes = [permissions.IsAuthenticated]
-    
+
+    def get_permissions(self):
+        if self.action in ["forgot_password", "reset_password"]:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=["get"], url_path="current-user", name="Current User")
     def current_user(self, request):
         """Get the currently logged on user."""
-        try:
-            user = request.user
-            return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user = request.user
+        return Response(serializers.CurrentUserSerializer(user).data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["patch"], url_path="change-password", name="Change Password")
+    def change_password(self, request):
+        """Change password the currently logged on user."""
+        user = request.user
+        serializer = serializers.PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'status': 'Password changed successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=False, url_path="forgot-password", name="Forgot Password")
+    def forgot_password(self, request):
+        serializer = serializers.ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Verification email successful. Please check your inbox."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['patch'], detail=False, url_path="reset-password", name="Reset Password")
+    def reset_password(self, request):
+        serializer = serializers.ResetPasswordserializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'Password changed successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

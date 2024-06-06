@@ -6,6 +6,7 @@ charset-normalizer==3.3.2
 cloudinary==1.40.0
 cryptography==42.0.8
 Django==5.0.6
+django-anymail==10.3
 django-cloudinary-storage==0.3.0
 django-filter==24.2
 django-jazzmin==3.0.0

@@ -11,7 +11,7 @@ class User(AbstractUser):
                               help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.")
     avatar = models.ImageField(
         upload_to='avatars/%Y/%m/%d/', default=None, null=True, blank=True, help_text="Upload avatar of the user")
-    reset_code = models.IntegerField(null=True, blank=True)
+    reset_code = models.CharField(max_length=7, null=True, blank=True, unique=True)
     role = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ManyToManyField(Group, related_name='users')
 
@@ -65,6 +65,9 @@ class Patient(ItemModel):
         if not self.slug:
             self.slug = slugify(self.user.username)
         return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Category(ItemModel):
