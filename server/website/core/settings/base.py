@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'drf_redesign',
+    'oauth2_provider',
     'rest_framework',
     'django_filters',
     'mdeditor',
@@ -37,7 +38,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
@@ -51,8 +52,26 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    )
 }
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'},
+    'DEFAULT_SCOPES': ['read', 'write'],
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 3600
+}
+
+AUTHENTICATION_BACKENDS = [
+    'oauth2_provider.backends.OAuth2Backend',
+    'django.contrib.auth.backends.ModelBackend'
+]
+
+LOGIN_URL = '/admin/login/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

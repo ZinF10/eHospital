@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework import viewsets, filters, parsers, status, permissions
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_excel.mixins import XLSXFileMixin
 from django_filters.rest_framework import DjangoFilterBackend
@@ -84,3 +85,20 @@ class PatientViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.AllowAny]
 
         return [permission() for permission in permission_classes]
+
+
+class UserViewSet(viewsets.ViewSet):
+    queryset = dao.load_users()
+    serializer_class = serializers.UserSerializer
+    lookup_field = "username"
+    permission_classes = [permissions.IsAuthenticated]
+    
+
+    @action(detail=False, methods=["get"], url_path="current-user", name="Current User")
+    def current_user(self, request):
+        """Get the currently logged on user."""
+        try:
+            user = request.user
+            return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
