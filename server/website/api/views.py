@@ -1,11 +1,9 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework import viewsets, filters
-from rest_framework.settings import api_settings
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from drf_excel.mixins import XLSXFileMixin
 from django_filters.rest_framework import DjangoFilterBackend
-from . import serializers, dao, filters as customize_filters, renders
+from . import serializers, dao, filters as customize_filters, paginators
 
 
 @staff_member_required
@@ -37,6 +35,7 @@ class CategoryViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
     filename = 'categories.xlsx'
+    pagination_class = None
 
 
 class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
@@ -55,3 +54,4 @@ class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['price', 'name']
     search_fields = ['name']
     filename = 'medications.xlsx'
+    pagination_class = paginators.StandardResultsSetPagination

@@ -92,6 +92,8 @@ class Medication(ItemModel, CommonModel):
     name = models.CharField(max_length=100, unique=True)
     description = MDTextField(null=True, blank=True)
     price = models.FloatField(default=0.00)
+    image = models.ImageField(upload_to='medications/%Y/%m/%d/',
+                              blank=True, help_text="Upload image of the medication")
 
     class Meta(ItemModel.Meta):
         ordering = ItemModel.Meta.ordering + ["price"]

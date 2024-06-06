@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h1j00u&)hb1zudf6saovu(*lm+3&f5nasr!u+6i02!vls+3qi6'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -17,12 +17,15 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'core.apps.CustomizeAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'drf_redesign',
     'rest_framework',
     'django_filters',
@@ -44,6 +47,8 @@ REST_FRAMEWORK = {
         'rest_framework_csv.renderers.CSVRenderer',
         'drf_excel.renderers.XLSXRenderer'
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100
 }
 
 MIDDLEWARE = [
@@ -117,6 +122,7 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -184,4 +190,120 @@ SPECTACULAR_SETTINGS = {
         'displayOperationId': True,
     },
     'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',
+}
+
+# Jazzmin
+
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "eHospital",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "eHospital",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "eHospital",
+
+    # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": None,
+
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": None,
+
+    # CSS classes that are applied to the logo above
+    "site_logo_classes": "img-circle",
+
+    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
+    "site_icon": None,
+
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to eHospital",
+
+    # Copyright on the footer
+    "copyright": "by ZIN",
+
+    "search_model": ["api.User", "auth.Group"],
+
+    # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
+    "user_avatar": "avatar",
+
+    ############
+    # Top Menu #
+    ############
+
+    # Links to put along the top menu
+    "topmenu_links": [
+        # external url that opens in a new window (Permissions can be added)
+        {"name": "Support", "url": "https://github.com/zinitdev", "new_window": True},
+    ],
+
+    #############
+    # User Menu #
+    #############
+
+    # Additional links to include in the user menu on the top right ("app" url type is not allowed)
+    "usermenu_links": [
+        {"name": "Support", "url": "https://github.com/zinitdev", "new_window": True},
+        {"model": "api.User"}
+    ],
+
+    #############
+    # Side Menu #
+    #############
+
+    # Whether to display the side menu
+    "show_sidebar": True,
+
+    # Whether to aut expand the menu
+    "navigation_expanded": True,
+
+    "related_modal_active": True,
+
+    # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
+    "icons": {
+        "oauth2_provider.accesstoken": "fas fa-users-cog",
+        "auth.Group": "fas fa-users",
+        "auth.Permission": "fas fa-lock",
+        "custom_app.statistics": "fas fa-chart-bar",
+        "api.User": "fas fa-user",
+        "api.Category": "fas fa-list-alt",
+        "api.Doctor": "fa fa-user-md",
+        "api.Patient": "fa fa-wheelchair",
+        "api.Tag": "fa fa-tags",
+        "api.Medication": "fa fa-medkit"
+
+    },
+    # Icons that are used when one is not manually specified
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+
+    #################
+    # Related Modal #
+    #################
+    # Use modals instead of popups
+    "related_modal_active": False,
+
+    #############
+    # UI Tweaks #
+    #############
+    "use_google_fonts_cdn": True,
+    "changeform_format": "carousel",
+    "changeform_format_overrides": {"api.User": "carousel", "auth.group": "vertical_tabs"},
+    # Add a language dropdown into the admin
+    "language_chooser": True
+}
+
+JAZZMIN_SETTINGS["show_ui_builder"] = True
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "simplex",
+    "dark_mode_theme": "solar"
+}
+
+# Cloudinary
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
+    'API_KEY':  os.environ.get('API_KEY'),
+    'API_SECRET':  os.environ.get('API_SECRET')
 }

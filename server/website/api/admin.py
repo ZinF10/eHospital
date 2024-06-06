@@ -52,7 +52,7 @@ class UserAdmin(BaseUserAdmin, BaseAdmin):
     search_fields = ['email', 'username', 'first_name', 'last_name']
     list_filter = ["is_superuser", "is_active", "is_staff", "role"]
 
-    ieldsets = [
+    fieldsets = [
         (None, {"fields": ["email", "username", "password"]}),
         ('Personal Info', {"fields": [
          "first_name", "last_name", "avatar", "is_active", "date_joined", "last_login"]}),
