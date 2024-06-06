@@ -1,5 +1,9 @@
 from django.db.models import Count
-from .models import Category, Medication, Patient, User
+from .models import Category, Medication, Patient, User, Doctor, Nurse, Department
+
+
+def load_departments():
+    return Department.objects.filter(is_active=True).all().order_by('-date_created')
 
 
 def load_categories():
@@ -12,6 +16,10 @@ def load_medications():
 
 def load_patients():
     return Patient.objects.filter(is_active=True).all().order_by('-date_created')
+
+
+def load_doctors():
+    return Doctor.objects.filter(is_active=True).all().order_by('-date_created')
 
 
 def load_users():

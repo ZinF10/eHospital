@@ -292,9 +292,13 @@ JAZZMIN_SETTINGS = {
         "api.User": "fas fa-user",
         "api.Category": "fas fa-list-alt",
         "api.Doctor": "fa fa-user-md",
+        "api.Nurse": "fa fa-user-md",
         "api.Patient": "fa fa-wheelchair",
         "api.Tag": "fa fa-tags",
-        "api.Medication": "fa fa-medkit"
+        "api.Medication": "fa fa-medkit",
+        "api.Award": "fa fa-gift",
+        "api.Experience": "fa fa-graduation-cap",
+        "api.Department": "fa fa-building",
 
     },
     # Icons that are used when one is not manually specified

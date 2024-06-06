@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from rest_framework import viewsets, filters, parsers, status, permissions
+from rest_framework import viewsets, filters, parsers, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_excel.mixins import XLSXFileMixin
@@ -59,13 +59,14 @@ class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     pagination_class = paginators.StandardResultsSetPagination
 
 
-class PatientViewSet(viewsets.ModelViewSet):
+class PatientViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet, generics.CreateAPIView):
     """
     This API returns a list of all **active** patients in the system.
 
     For more details on how patients are activated, please [see here](http://example.com/activating-accounts).
     """
 
+    filename = 'patients.xlsx'
     queryset = dao.load_patients()
     serializer_class = serializers.PatientSerializer
     parser_classes = [parsers.MultiPartParser]
@@ -135,3 +136,22 @@ class UserViewSet(viewsets.GenericViewSet):
             return Response({'status': 'Password changed successfully.'}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DoctorViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    This API returns a list of all **active** doctors in the system.
+
+    For more details on how doctors are activated, please [see here](http://example.com/activating-accounts).
+    """
+
+    filename = 'doctors.xlsx'
+    queryset = dao.load_doctors()
+    serializer_class = serializers.DoctorSerializer
+    lookup_field = 'slug'
+    filter_backends = [DjangoFilterBackend,
+                       filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = customize_filters.DoctorFilter
+    ordering_fields = ['user']
+    search_fields = ['user__first_name', 'user__last_name']
+    pagination_class = paginators.StandardResultsSetPagination

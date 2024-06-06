@@ -11,8 +11,10 @@ class User(AbstractUser):
                               help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.")
     avatar = models.ImageField(
         upload_to='avatars/%Y/%m/%d/', default=None, null=True, blank=True, help_text="Upload avatar of the user")
-    reset_code = models.CharField(max_length=7, null=True, blank=True, unique=True)
-    role = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+    reset_code = models.CharField(
+        max_length=7, null=True, blank=True, unique=True)
+    role = models.ForeignKey(
+        Group, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ManyToManyField(Group, related_name='users')
 
     objects = UserManager()
@@ -20,8 +22,11 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "last_name", "first_name"]
 
+    def get_full_name(self):
+        return f"{self.last_name} {self.first_name}"
+
     def __str__(self):
-        return self.username
+        return self.get_full_name()
 
     @property
     def full_name(self):
@@ -31,7 +36,6 @@ class User(AbstractUser):
     def avatar_preview(self):
         if self.avatar:
             return mark_safe(f'<img src="{self.avatar.url}" alt="{self.username}" width="80" height="80" class="img-thumbnail rounded-circle shadow" />')
-        return "No avatar"
 
     class Meta:
         ordering = ["id"]
@@ -57,29 +61,56 @@ class ItemModel(BaseModel):
         ordering = BaseModel.Meta.ordering + ["slug"]
 
 
-class Patient(ItemModel):
+class InforModel(ItemModel):
+    phone = models.CharField(max_length=20, null=True, blank=True)
+
+    class Meta(BaseModel.Meta):
+        abstract = True
+        ordering = ItemModel.Meta.ordering + ['phone']
+
+
+class Patient(InforModel):
+    BLOOD_GROUP = (
+        ("A-", "A-"),
+        ("A+", "A+"),
+        ("B-", "B-"),
+        ("B+", "B+"),
+        ("AB-", "AB-"),
+        ("AB+", "AB+"),
+        ("O-", "O-"),
+        ("O+", "O+"),
+        ("NS", "Not Set"),
+    )
+    GENDER_TYPE = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other')
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=125)
+    blood_group = models.CharField(
+        max_length=5,
+        default="NS",
+        choices=BLOOD_GROUP
+    )
+    gender = models.CharField(
+        max_length=1, choices=GENDER_TYPE, default='O')
+    location = models.CharField(max_length=125, null=True, blank=True)
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Please use the following format: <em>YYYY-MM-DD</em>."
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.user.username)
         return super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.user.username
-
-
-class Category(ItemModel):
-    name = models.CharField(max_length=80, unique=True)
-    description = MDTextField(null=True, blank=True)
-
-    class Meta(ItemModel.Meta):
-        ordering = ItemModel.Meta.ordering
-        verbose_name_plural = "Categories"
+    class Meta(InforModel.Meta):
+        ordering = InforModel.Meta.ordering + ['user']
 
     def __str__(self):
-        return self.name
+        return self.user.get_full_name()
 
 
 class Tag(BaseModel):
@@ -98,6 +129,88 @@ class CommonModel(models.Model):
     class Meta:
         abstract = True
         ordering = ["id"]
+
+
+class Department(ItemModel):
+    name = models.CharField(max_length=80, unique=True)
+    description = MDTextField(null=True, blank=True)
+
+    class Meta(ItemModel.Meta):
+        ordering = ItemModel.Meta.ordering
+
+    def __str__(self):
+        return self.name
+
+
+class Doctor(InforModel, CommonModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    description = MDTextField(null=True, blank=True)
+    price = models.FloatField(default=0.00)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.user.username)
+        return super().save(*args, **kwargs)
+
+    class Meta(InforModel.Meta):
+        ordering = InforModel.Meta.ordering + ['user']
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+
+class Experience(BaseModel):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    hospital = models.CharField(max_length=50)
+    position = models.CharField(max_length=50)
+    start_date = models.DateField("From")
+    end_date = models.DateField("To", blank=True)
+    description = MDTextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.designation} {self.hospital}"
+
+    class Meta:
+        ordering = ["id"]
+
+
+class Award(BaseModel):
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    title = models.CharField(max_length=50)
+    date_received = models.DateField()
+    description = MDTextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.title} {self.date_received}"
+
+    class Meta:
+        ordering = BaseModel.Meta.ordering + ["-date_received"]
+
+
+class Nurse(InforModel, CommonModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.user.username)
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+
+class Category(ItemModel):
+    name = models.CharField(max_length=80, unique=True)
+    description = MDTextField(null=True, blank=True)
+
+    class Meta(ItemModel.Meta):
+        ordering = ItemModel.Meta.ordering
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
 
 
 class Medication(ItemModel, CommonModel):

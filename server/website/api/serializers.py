@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
 from rest_framework import serializers
-from .dao import load_categories
-from .models import Category, Medication, User, Patient
+from rest_framework.validators import UniqueValidator
+from .dao import load_categories, load_patients, load_doctors, load_departments
+from .models import Category, Medication, User, Patient, Doctor, Nurse
 from .utils import send_custom_email, generate_reset_code
 
 
@@ -11,6 +12,12 @@ class BaseSerializer(serializers.ModelSerializer):
         fields = ['slug']
 
 
+class InforSerializer(BaseSerializer):
+    class Meta:
+        model = BaseSerializer.Meta.model
+        fields = BaseSerializer.Meta.fields + ["phone"]
+
+
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -18,12 +25,10 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role = GroupSerializer(read_only=True)
-
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name',
-                  'last_name', 'avatar', 'password', 'role']
+                  'last_name', 'avatar', 'password']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -41,9 +46,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CurrentUserSerializer(UserSerializer):
+    role = GroupSerializer(read_only=True)
     class Meta:
         model = UserSerializer.Meta.model
-        fields = UserSerializer.Meta.fields + ['last_login']
+        fields = UserSerializer.Meta.fields + ['role', 'last_login']
         extra_kwargs = UserSerializer.Meta.extra_kwargs
 
 
@@ -104,13 +110,17 @@ class ResetPasswordserializer(serializers.Serializer):
         user.save()
 
 
-class PatientSerializer(BaseSerializer):
+class PatientSerializer(InforSerializer):
     user = UserSerializer(required=True)
-    slug = serializers.SlugField(read_only=True)
+    slug = serializers.SlugField(
+        read_only=True,
+        validators=[UniqueValidator(queryset=load_patients())]
+    )
 
     class Meta:
         model = Patient
-        fields = BaseSerializer.Meta.fields + ['user', 'address']
+        fields = ["user", "slug", "gender", "location", "date_of_birth"] + \
+            InforSerializer.Meta.fields
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -120,6 +130,20 @@ class PatientSerializer(BaseSerializer):
         return patient
 
 
+class DoctorSerializer(InforSerializer):
+    user = UserSerializer(read_only=True)
+    slug = serializers.SlugField(
+        read_only=True,
+        validators=[UniqueValidator(queryset=load_doctors())]
+    )
+    department = serializers.StringRelatedField(many=False)
+
+    class Meta:
+        model = Doctor
+        fields = ["user", "slug", "price", "description"] + \
+            InforSerializer.Meta.fields + ["department"]
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -127,8 +151,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class MedicationSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=load_categories())
+    category = serializers.StringRelatedField(many=False)
 
     class Meta:
         model = Medication
