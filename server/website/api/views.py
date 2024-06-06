@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, parsers, status, permissions
+from rest_framework.response import Response
 from drf_excel.mixins import XLSXFileMixin
 from django_filters.rest_framework import DjangoFilterBackend
 from . import serializers, dao, filters as customize_filters, paginators
@@ -31,10 +32,10 @@ class CategoryViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     For more details on how categories are activated, please [see here](http://example.com/activating-accounts).
     """
 
+    filename = 'categories.xlsx'
     queryset = dao.load_categories()
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
-    filename = 'categories.xlsx'
     pagination_class = None
 
 
@@ -45,6 +46,7 @@ class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     For more details on how medications are activated, please [see here](http://example.com/activating-accounts).
     """
 
+    filename = 'medications.xlsx'
     queryset = dao.load_medications()
     serializer_class = serializers.MedicationSerializer
     lookup_field = 'slug'
@@ -53,5 +55,32 @@ class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     filterset_class = customize_filters.MedicationFilter
     ordering_fields = ['price', 'name']
     search_fields = ['name']
-    filename = 'medications.xlsx'
     pagination_class = paginators.StandardResultsSetPagination
+
+
+class PatientViewSet(viewsets.ModelViewSet):
+    """
+    This API returns a list of all **active** patients in the system.
+
+    For more details on how patients are activated, please [see here](http://example.com/activating-accounts).
+    """
+
+    queryset = dao.load_patients()
+    serializer_class = serializers.PatientSerializer
+    parser_classes = [parsers.MultiPartParser]
+    lookup_field = 'slug'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_permissions(self):
+        if self.action in ['list']:
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.AllowAny]
+
+        return [permission() for permission in permission_classes]

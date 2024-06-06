@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.contrib import admin
 from django.utils.html import mark_safe
+from django.template.defaultfilters import slugify
 from mdeditor.fields import MDTextField
 
 
@@ -11,8 +12,7 @@ class User(AbstractUser):
     avatar = models.ImageField(
         upload_to='avatars/%Y/%m/%d/', default=None, null=True, blank=True, help_text="Upload avatar of the user")
     reset_code = models.IntegerField(null=True, blank=True)
-    role = models.ForeignKey(
-        Group, on_delete=models.SET_NULL, null=True, blank=True)
+    role = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ManyToManyField(Group, related_name='users')
 
     objects = UserManager()
@@ -50,11 +50,21 @@ class BaseModel(models.Model):
 
 class ItemModel(BaseModel):
     slug = models.SlugField(default="", null=False, verbose_name="URL",
-                            help_text="A short label, generally used in URLs.")
+                            help_text="A short label, generally used in URLs.", unique=True)
 
     class Meta(BaseModel.Meta):
         abstract = True
         ordering = BaseModel.Meta.ordering + ["slug"]
+
+
+class Patient(ItemModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=125)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.user.username)
+        return super().save(*args, **kwargs)
 
 
 class Category(ItemModel):
