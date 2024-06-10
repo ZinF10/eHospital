@@ -34,6 +34,6 @@ To start the development server and run the app on your device or emulator, foll
 yarn start
 ```
 
-### Author
+## Author
 
 Developed and maintained by [ZIN](http://www.github.com/zinitdev).
