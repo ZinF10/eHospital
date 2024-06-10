@@ -16,9 +16,9 @@ urlpatterns = [
     re_path(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path("chart/categories/", views.get_stats_categories, name="chart-categories"),
     path('set-language/', set_language, name='set_language'),
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger/',
-         SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
+    path('openapi.yaml/', SpectacularAPIView.as_view(), name='schema'),
+    path('docs/',
+         SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('redoc/',
          SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

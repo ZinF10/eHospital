@@ -62,4 +62,4 @@ py manage.py createsuperuser --email="admin@gmail.com" --username="admin"
 
 ## Author
 
-Copyright &copy; 2024 by [ZIN](http://www.github.com/zinitdev)
+Copyright &copy; 2024 by [ZIN](http://www.github.com/zinitdev).

@@ -191,7 +191,7 @@ MDEDITOR_CONFIGS = {
 # Swagger
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'eHospital Swagger',
+    'TITLE': 'eHospital - Swagger UI',
     'DESCRIPTION': 'RESTful APIs for eHospital application 🚀',
     'VERSION': '1.0.0',
     'TERMS_OF_SERVICE': 'https://www.google.com/policies/terms/',
