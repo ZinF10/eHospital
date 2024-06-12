@@ -13,8 +13,10 @@
             ],
             "django": true,
             "autoStartBrowser": true,
+            "jinja": true,
             "program": "${workspaceFolder}\\website\\manage.py",
-            "console": "integratedTerminal"
+            "console": "internalConsole",
+            "justMyCode": true
         }
     ]
 }

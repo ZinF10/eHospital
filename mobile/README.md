@@ -2,11 +2,11 @@
 
 ## Table of Contents
 
-- [About](#about)
-- [Getting Started](#getting-started)
-     - [Installation](#installation)
-     - [Running the App](#running-the-app)
-- [Author](#author)
+-   [About](#about)
+-   [Getting Started](#getting-started)
+    -   [Installation](#installation)
+    -   [Running the App](#running-the-app)
+-   [Author](#author)
 
 ## About
 
@@ -23,12 +23,20 @@ Follow these steps to set up the project on your local machine:
 Install dependencies
 
 ```bash
+npm i
+```
+
+```bash
 yarn
 ```
 
 ### Running the App
 
 To start the development server and run the app on your device or emulator, follow these steps:
+
+```bash
+npm start
+```
 
 ```bash
 yarn start
