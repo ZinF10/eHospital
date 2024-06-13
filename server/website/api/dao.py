@@ -7,19 +7,19 @@ def load_departments():
 
 
 def load_categories():
-    return Category.objects.filter(is_active=True).all().order_by('-date_created')
+    return Category.objects.filter(is_active=True).all()
 
 
 def load_medications():
-    return Medication.objects.filter(is_active=True).all().order_by('-date_created')
+    return Medication.objects.select_related('category').prefetch_related('tags').filter(is_active=True)
 
 
 def load_patients():
-    return Patient.objects.filter(is_active=True).all().order_by('-date_created')
+    return Patient.objects.select_related('user').filter(is_active=True)
 
 
 def load_doctors():
-    return Doctor.objects.filter(is_active=True).all().order_by('-date_created')
+    return Doctor.objects.select_related('department', 'user').prefetch_related('tags').filter(is_active=True)
 
 
 def load_users():

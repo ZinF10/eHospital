@@ -5,7 +5,6 @@ from .settings import base
 from .admin import admin_statistics_view
 admin.autodiscover()
 
-
 urlpatterns = [
     path("admin/statistics/", admin.site.admin_view(admin_statistics_view),
          name="admin-statistics"),
@@ -17,4 +16,6 @@ urlpatterns = [
 
 
 if base.DEBUG:
-    urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
+    urlpatterns += [
+        path("__debug__/", include("debug_toolbar.urls"))
+    ] + static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)

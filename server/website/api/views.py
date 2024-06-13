@@ -1,11 +1,12 @@
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from rest_framework import viewsets, filters, parsers, status, permissions, generics
+from rest_framework import viewsets, parsers, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from drf_excel.mixins import XLSXFileMixin
-from django_filters.rest_framework import DjangoFilterBackend
-from . import serializers, dao, filters as customize_filters, paginators
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from . import serializers, dao, filters, mixins
 
 
 @staff_member_required
@@ -26,7 +27,7 @@ def get_stats_categories(request):
     })
 
 
-class CategoryViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(mixins.BaseViewSet, viewsets.ViewSet, generics.ListAPIView):
     """
     This API returns a list of all **active** categories in the system.
 
@@ -36,11 +37,15 @@ class CategoryViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     filename = 'categories.xlsx'
     queryset = dao.load_categories()
     serializer_class = serializers.CategorySerializer
-    lookup_field = 'slug'
-    pagination_class = None
+    
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def list(self, request):
+        queryset = self.get_queryset()
+        return Response(self.serializer_class(queryset, many=True).data, status=status.HTTP_200_OK)
 
 
-class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+class MedicationViewSet(mixins.FOSViewSet, viewsets.ReadOnlyModelViewSet):
     """
     This API returns a list of all **active** medications in the system.
 
@@ -50,16 +55,27 @@ class MedicationViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     filename = 'medications.xlsx'
     queryset = dao.load_medications()
     serializer_class = serializers.MedicationSerializer
-    lookup_field = 'slug'
-    filter_backends = [DjangoFilterBackend,
-                       filters.SearchFilter, filters.OrderingFilter]
-    filterset_class = customize_filters.MedicationFilter
+    filterset_class = filters.MedicationFilter
     ordering_fields = ['price', 'name']
     search_fields = ['name']
-    pagination_class = paginators.StandardResultsSetPagination
+    
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def list(self, request):
+        queryset = self.get_queryset()
+        return Response(self.serializer_class(queryset, many=True).data, status=status.HTTP_200_OK)
+    
 
-
-class PatientViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet, generics.CreateAPIView):
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def retrieve(self, request, slug=None):
+        return Response(
+            serializers.MedicationDetailSerializer(self.get_object()).data, 
+            status=status.HTTP_200_OK
+        )
+    
+    
+class PatientViewSet(mixins.CreateListRetrieveUpdateViewSet):
     """
     This API returns a list of all **active** patients in the system.
 
@@ -70,7 +86,6 @@ class PatientViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet, generics.Crea
     queryset = dao.load_patients()
     serializer_class = serializers.PatientSerializer
     parser_classes = [parsers.MultiPartParser]
-    lookup_field = 'slug'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -100,7 +115,10 @@ class UserViewSet(viewsets.GenericViewSet):
             permission_classes = [permissions.IsAuthenticated]
 
         return [permission() for permission in permission_classes]
-
+    
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    @method_decorator(vary_on_headers("Authorization"))
     @action(detail=False, methods=["get"], url_path="current-user", name="Current User")
     def current_user(self, request):
         """Get the currently logged on user."""
@@ -121,6 +139,7 @@ class UserViewSet(viewsets.GenericViewSet):
 
     @action(methods=['post'], detail=False, url_path="forgot-password", name="Forgot Password")
     def forgot_password(self, request):
+        """Forgot password user."""
         serializer = serializers.ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -130,6 +149,7 @@ class UserViewSet(viewsets.GenericViewSet):
 
     @action(methods=['patch'], detail=False, url_path="reset-password", name="Reset Password")
     def reset_password(self, request):
+        """Reset password user."""
         serializer = serializers.ResetPasswordserializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -138,7 +158,7 @@ class UserViewSet(viewsets.GenericViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DoctorViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+class DoctorViewSet(mixins.CreateListRetrieveUpdateViewSet):
     """
     This API returns a list of all **active** doctors in the system.
 
@@ -148,10 +168,6 @@ class DoctorViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
     filename = 'doctors.xlsx'
     queryset = dao.load_doctors()
     serializer_class = serializers.DoctorSerializer
-    lookup_field = 'slug'
-    filter_backends = [DjangoFilterBackend,
-                       filters.SearchFilter, filters.OrderingFilter]
-    filterset_class = customize_filters.DoctorFilter
+    filterset_class = filters.DoctorFilter
     ordering_fields = ['user']
     search_fields = ['user__first_name', 'user__last_name']
-    pagination_class = paginators.StandardResultsSetPagination

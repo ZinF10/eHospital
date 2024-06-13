@@ -113,14 +113,14 @@ class Patient(InforModel):
         return self.user.get_full_name()
 
 
-class Tag(BaseModel):
+class Tag(ItemModel):
     name = models.CharField(max_length=80, unique=True)
 
     def __str__(self):
         return self.name
 
-    class Meta(BaseModel.Meta):
-        ordering = BaseModel.Meta.ordering + ["name"]
+    class Meta(ItemModel.Meta):
+        ordering = ItemModel.Meta.ordering + ["name"]
 
 
 class CommonModel(models.Model):
@@ -203,7 +203,6 @@ class Nurse(InforModel, CommonModel):
 
 class Category(ItemModel):
     name = models.CharField(max_length=80, unique=True)
-    description = MDTextField(null=True, blank=True)
 
     class Meta(ItemModel.Meta):
         ordering = ItemModel.Meta.ordering
@@ -214,7 +213,7 @@ class Category(ItemModel):
 
 
 class Medication(ItemModel, CommonModel):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='medications')
     name = models.CharField(max_length=100, unique=True)
     description = MDTextField(null=True, blank=True)
     price = models.FloatField(default=0.00)
