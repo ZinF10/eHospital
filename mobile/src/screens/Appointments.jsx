@@ -4,12 +4,14 @@ import globalStyles from '@/themes/styles';
 
 const Appointments = ({ navigation }) => {
     return (
-        <View style={[
+        <View
+            style={[
                 globalStyles.container,
                 {
                     backgroundColor: 'lightblue',
                 },
-            ]}>
+            ]}
+        >
             <Text>Appointments</Text>
             <Button title="Go back" onPress={() => navigation.goBack()} />
         </View>

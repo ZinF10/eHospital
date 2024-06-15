@@ -1,16 +1,26 @@
+import { DrawerRoutes } from '@/routes/routes';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import TabNavigator from './TabNavigator';
-import Profile from '@/screens/Profile';
+import RootNavigator from './RootNavigator';
 
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigator = () => {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Home" component={TabNavigator} />
-      <Drawer.Screen name="Profile" component={Profile} />
-    </Drawer.Navigator>
-  )
+function DrawerNavigator() {
+    return (
+        <Drawer.Navigator initialRouteName="Root">
+            <Drawer.Screen
+                name="Root"
+                component={RootNavigator}
+                options={{ title: 'Home' }}
+            />
+            {DrawerRoutes.map(route => (
+                <Drawer.Screen
+                    key={route}
+                    name={route.name}
+                    component={route.component}
+                />
+            ))}
+        </Drawer.Navigator>
+    );
 }
 
-export default DrawerNavigator
+export default DrawerNavigator;

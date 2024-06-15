@@ -1,4 +1,5 @@
 import Appointments from '@/screens/Appointments';
+import Categories from '@/screens/Categories';
 import Home from '@/screens/Home';
 import Profile from '@/screens/Profile';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -14,7 +15,7 @@ const optionsHome = createTabOptions('Home', 'home');
 const optionsProfile = createTabOptions('Profile', 'account');
 const optionsAppointments = createTabOptions('Appointments', 'stethoscope');
 
-export default routes = [
+const RootRoutes = [
     { name: 'Home', component: Home, options: optionsHome },
     {
         name: 'Appointments',
@@ -23,3 +24,10 @@ export default routes = [
     },
     { name: 'Profle', component: Profile, options: optionsProfile },
 ];
+
+const DrawerRoutes = [
+    { name: 'Categories', component: Categories },
+    { name: 'Profle', component: Profile },
+];
+
+export { RootRoutes, DrawerRoutes };

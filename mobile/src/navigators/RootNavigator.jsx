@@ -1,9 +1,9 @@
-import routes from '@/routes/routes';
+import { RootRoutes } from '@/routes/routes';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 const Tab = createMaterialBottomTabNavigator();
 
-const TabNavigator = () => {
+const RootNavigator = () => {
     return (
         <Tab.Navigator
             initialRouteName="Home"
@@ -13,7 +13,7 @@ const TabNavigator = () => {
                 backgroundColor: '#fff',
             }}
         >
-            {routes.map(route => (
+            {RootRoutes.map(route => (
                 <Tab.Screen
                     key={route}
                     name={route.name}
@@ -23,6 +23,6 @@ const TabNavigator = () => {
             ))}
         </Tab.Navigator>
     );
-}
+};
 
-export default TabNavigator
+export default RootNavigator;
