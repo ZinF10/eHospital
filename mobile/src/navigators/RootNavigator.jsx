@@ -1,5 +1,5 @@
-import { RootRoutes } from '@/routes/routes';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { RootRoutes } from 'routes/routes';
 
 const Tab = createMaterialBottomTabNavigator();
 

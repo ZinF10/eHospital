@@ -1,8 +1,8 @@
-import axiosInstance from '@/services/APIs';
 import { useCallback, useEffect, useState } from 'react';
+import axiosInstance from 'services/APIs';
 
-const useAxios = url => {
-    const [data, setData] = useState(null);
+const useAxios = (url) => {
+    const [data, setData] = useState([]);
     const [isLoading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 

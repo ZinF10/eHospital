@@ -1,7 +1,4 @@
 {
-  "expo": {
-    "name": "mobile",
-    "slug": "mobile",
-    "version": "1.0.0"
-  }
+  "name": "mobile",
+  "displayName": "mobile"
 }

@@ -1,14 +1,14 @@
-import globalStyles from "@/themes/styles";
-import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
+import { View, Text, StatusBar } from 'react-native'
+import React from 'react'
+import GlobalStyles from 'themes/styles'
 
-function Categories() {
-  return (
-    <View style={[globalStyles.container, { backgroundColor: "lightblue" }]}>
-      <Text>Categories</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const Categories = () => {
+    return (
+        <View style={[GlobalStyles.container, { backgroundColor: "lightblue" }]}>
+            <Text>Categories</Text>
+            <StatusBar style="auto" />
+        </View>
+    )
 }
 
-export default Categories;
+export default Categories

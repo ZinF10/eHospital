@@ -1,11 +1,10 @@
-import useAxios from '@/hooks/useAxios';
-import endpoints from '@/services/endpoints';
-import globalStyles from '@/themes/styles';
-import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Text } from 'react-native';
-import { Button, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, StatusBar, Text, View } from 'react-native';
+import React from 'react';
+import GlobalStyles from 'themes/styles';
+import useAxios from 'hooks/customs/useAxios';
+import endpoints from 'services/endpoints';
 
-function Home({ navigation }) {
+const Home = () => {
     const { data, isLoading } = useAxios(endpoints['categories']);
 
     if (isLoading) {
@@ -13,12 +12,10 @@ function Home({ navigation }) {
     }
 
     return (
-        <View
-            style={[globalStyles.container, { backgroundColor: 'lightblue' }]}
-        >
+        <View style={GlobalStyles.container}>
             <StatusBar style="auto" />
 
-            {data ? (
+            {data && data.length > 0 ? (
                 <FlatList
                     data={data}
                     keyExtractor={(item, index) => index.toString()}
@@ -32,7 +29,7 @@ function Home({ navigation }) {
                 <Text>No category</Text>
             )}
         </View>
-    );
+    )
 }
 
-export default Home;
+export default Home

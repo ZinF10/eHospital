@@ -1,10 +1,10 @@
-import { DrawerRoutes } from '@/routes/routes';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DrawerRoutes } from 'routes/routes';
 import RootNavigator from './RootNavigator';
 
 const Drawer = createDrawerNavigator();
 
-function DrawerNavigator() {
+const DrawerNavigator = () => {
     return (
         <Drawer.Navigator initialRouteName="Root">
             <Drawer.Screen
@@ -20,7 +20,7 @@ function DrawerNavigator() {
                 />
             ))}
         </Drawer.Navigator>
-    );
+    )
 }
 
-export default DrawerNavigator;
+export default DrawerNavigator

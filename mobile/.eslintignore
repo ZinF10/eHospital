@@ -1,4 +1,7 @@
-/.expo
+__tests__
+.bundle/
+.yarn/
+.vscode/
 node_modules
 android
 ios
