@@ -2,20 +2,12 @@ from django.contrib.auth.models import Group
 from rest_framework import serializers
 from .models import Category, Medication, User, Patient, Doctor
 from .utils import send_custom_email, generate_reset_code
-from .common import BaseSerializer, InforSerializer, ItemSerializer, UserSerializer
+from .common import BaseSerializer, InforSerializer, ItemSerializer, UserSerializer, InforDetailsSerializer
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['name']
-
-
-class CurrentUserSerializer(UserSerializer):
-    role = GroupSerializer(read_only=True)
-    class Meta:
-        model = UserSerializer.Meta.model
-        fields = UserSerializer.Meta.fields + ['role', 'last_login']
-        extra_kwargs = UserSerializer.Meta.extra_kwargs
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
@@ -89,12 +81,46 @@ class PatientSerializer(InforSerializer):
         return patient
 
 
-class DoctorSerializer(InforSerializer):
+class DoctorSerializer(InforSerializer, ItemSerializer):
     department = serializers.StringRelatedField(many=False)
 
     class Meta:
         model = Doctor
-        fields = InforSerializer.Meta.fields + ["price", "description", "department"]
+        fields = InforSerializer.Meta.fields + ["department"] + ItemSerializer.Meta.fields
+
+
+class DoctorDetailsSerializer(DoctorSerializer, InforDetailsSerializer):
+    class Meta:
+        model = DoctorSerializer.Meta.model
+        fields = DoctorSerializer.Meta.fields + ["price", "description"] + InforDetailsSerializer.Meta.fields
+
+
+class CurrentUserSerializer(UserSerializer):
+    role = GroupSerializer(read_only=True)
+    class Meta:
+        model = UserSerializer.Meta.model
+        fields = UserSerializer.Meta.fields + ['role', 'last_login']
+        extra_kwargs = UserSerializer.Meta.extra_kwargs
+
+    def check_role(self, instance, serializer_class):
+        current_instance = serializer_class.Meta.model.objects.filter(user=instance).first()
+        if current_instance:
+            current_data = serializer_class(current_instance).data
+            current_data.pop('slug', None)
+            current_data.pop('price', None)
+            current_data.pop('user', None)
+            return current_data
+        return None
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        if instance.role:
+            if instance.role.name == 'Patient':
+                representation['patient'] = self.check_role(instance, PatientSerializer)
+            elif instance.role.name == 'Doctor':
+                representation['doctor'] = self.check_role(instance, DoctorSerializer)
+        return representation
 
 
 class CategorySerializer(BaseSerializer):
@@ -104,9 +130,10 @@ class CategorySerializer(BaseSerializer):
 
 
 class MedicationSerializer(ItemSerializer):
+    category = serializers.StringRelatedField(many=False)
     class Meta:
         model = Medication
-        fields = ItemSerializer.Meta.fields + ['price']
+        fields = ItemSerializer.Meta.fields + ['price', 'category']
         
 
 class MedicationDetailSerializer(MedicationSerializer):

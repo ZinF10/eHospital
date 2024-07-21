@@ -49,7 +49,7 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["id"]
+        ordering = ["id", "-date_created"]
 
 
 class ItemModel(BaseModel):
@@ -103,7 +103,7 @@ class Patient(InforModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.user.username)
+            self.slug = slugify(f"{self.user.last_name}{self.user.first_name}")
         return super().save(*args, **kwargs)
 
     class Meta(InforModel.Meta):

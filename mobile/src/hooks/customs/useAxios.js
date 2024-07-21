@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import axiosInstance from 'services/APIs';
+import { useCallback, useEffect, useState } from "react";
+import axiosInstance from "services/APIs";
 
 const useAxios = (url) => {
     const [data, setData] = useState([]);

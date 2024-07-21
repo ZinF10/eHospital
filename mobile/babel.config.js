@@ -24,7 +24,8 @@ module.exports = {
           '.tsx',
           '.jsx',
           '.js',
-          '.json',],
+          '.json',
+        ],
       },
     ],
     [
@@ -35,6 +36,6 @@ module.exports = {
         path: '.env',
       },
     ],
-    'react-native-reanimated/plugin',
+    'react-native-reanimated/plugin'
   ],
 };

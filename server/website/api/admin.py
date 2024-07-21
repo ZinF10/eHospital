@@ -80,7 +80,7 @@ class UserAdmin(BaseUserAdmin, BaseAdmin):
         ),
     ]
     ordering = ["email", "first_name", "last_name"]
-    filter_horizontal = ['groups', 'user_permissions']
+    filter_horizontal = ['user_permissions']
     readonly_fields = ["avatar_preview"]
 
 

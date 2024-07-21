@@ -122,8 +122,7 @@ class UserViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["get"], url_path="current-user", name="Current User")
     def current_user(self, request):
         """Get the currently logged on user."""
-        user = request.user
-        return Response(serializers.CurrentUserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response(serializers.CurrentUserSerializer(request.user).data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["patch"], url_path="change-password", name="Change Password")
     def change_password(self, request):
@@ -171,3 +170,18 @@ class DoctorViewSet(mixins.CreateListRetrieveUpdateViewSet):
     filterset_class = filters.DoctorFilter
     ordering_fields = ['user']
     search_fields = ['user__first_name', 'user__last_name']
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def list(self, request):
+        queryset = self.get_queryset()
+        return Response(self.serializer_class(queryset, many=True).data, status=status.HTTP_200_OK)
+    
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def retrieve(self, request, slug=None):
+        return Response(
+            serializers.DoctorDetailsSerializer(self.get_object()).data, 
+            status=status.HTTP_200_OK
+        )

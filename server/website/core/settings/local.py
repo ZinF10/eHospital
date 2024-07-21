@@ -22,8 +22,4 @@ MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-INTERNAL_IPS = [
-    "*"
-]
-
 CORS_ALLOW_ALL_ORIGINS = True

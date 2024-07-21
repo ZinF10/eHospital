@@ -1,36 +1,52 @@
-
-import Appointments from 'screens/Appointments';
-import Categories from 'screens/Categories';
-import Home from 'screens/Home';
-import Profile from 'screens/Profile';
+import Appointments from "screens/auth/Appointments";
+import Profile from "screens/auth/Profile";
+import About from "screens/core/About";
+import Categories from "screens/core/Categories";
+import Home from "screens/core/Home";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const createTabOptions = (title, iconName) => ({
+const initialOptions = (title, iconName) => ({
     tabBarLabel: title,
     tabBarIcon: ({ color }) => (
-        <MaterialCommunityIcons name={iconName} color={color} size={26} />
+        <MaterialCommunityIcons
+            name={iconName}
+            color={color}
+            size={26} 
+        />
     ),
 });
 
-const optionsHome = createTabOptions('Home', 'home');
-const optionsProfile = createTabOptions('Profile', 'account');
-const optionsAppointments = createTabOptions('Appointments', 'stethoscope');
+const optionsHome = initialOptions('Home', 'home');
+const optionsProfile = initialOptions('Profile', 'account');
+const optionsAppointments = initialOptions('Appointments', 'stethoscope');
 
 const RootRoutes = [
     {
-        name: 'Home', component: Home, options: optionsHome
+        name: 'Home',
+        component: Home,
+        options: optionsHome
     },
     {
         name: 'Appointments',
         component: Appointments,
-        options: optionsAppointments,
+        options: optionsAppointments
     },
-    { name: 'Profle', component: Profile, options: optionsProfile },
+    {
+        name: 'Profile',
+        component: Profile,
+        options: optionsProfile
+    },
 ];
 
 const DrawerRoutes = [
-    { name: 'Categories', component: Categories },
-    { name: 'Profle', component: Profile },
+    {
+        name: 'Categories',
+        component: Categories
+    },
+    {
+        name: 'About',
+        component: About
+    },
 ];
 
 export { RootRoutes, DrawerRoutes };

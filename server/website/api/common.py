@@ -37,8 +37,14 @@ class InforSerializer(BaseSerializer):
     
     class Meta:
         model = BaseSerializer.Meta.model
-        fields = BaseSerializer.Meta.fields + ["user", "phone"]
-       
+        fields = BaseSerializer.Meta.fields + ["user"]
+    
+    
+class InforDetailsSerializer(InforSerializer):
+    class Meta:
+        model = InforSerializer.Meta.model
+        fields = InforSerializer.Meta.fields + ["phone"]
+   
        
 class TagSerializer(BaseSerializer):
     class Meta:
@@ -48,8 +54,7 @@ class TagSerializer(BaseSerializer):
         
 class ItemSerializer(BaseSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    category = serializers.StringRelatedField(many=False)
     
     class Meta:
         model = BaseSerializer.Meta.model
-        fields = BaseSerializer.Meta.fields + ["category", "tags"]
+        fields = BaseSerializer.Meta.fields + ["tags"]
